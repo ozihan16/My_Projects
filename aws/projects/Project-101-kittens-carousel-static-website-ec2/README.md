@@ -100,3 +100,6 @@ Kittens Carousel is a static website application deployed with Apache Web Server
 ## Resources
 
 - [AWS Cloudformation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html)
+
+
+# burada amaç; github repodan çektiğimiz resim ve html verilerinin kendi repomuza gönderilip, sonrasında oluşturduğumuz Template dosyasından hem Amazon EC2 yu ayağa kaldırıp buradaki package managerlardan güncelleme yapıp sonrasında da depomuzdan verileri çekerek bir web sayfasının ayağa kaldırması sağlamaktır.. Ozi
