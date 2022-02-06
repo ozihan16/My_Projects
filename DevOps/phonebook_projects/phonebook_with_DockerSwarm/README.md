@@ -1,4 +1,4 @@
-# Project-204: Docker Swarm Deployment of Phonebook Application (Python Flask) with MySQL
+# Project: Docker Swarm Deployment of Phonebook Application (Python Flask) with MySQL
 
 ## Description
 
@@ -105,9 +105,6 @@ This project aims to deploy the Phonebook Application web application with Docke
         |----delete.html     # Given to the students (HTML template)
 ```
 
-## Expected Outcome
-
-![Phonebook App Search Page](./search-snapshot.png)
 
 ### At the end of the project, following topics are to be covered;
 
