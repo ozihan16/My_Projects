@@ -1,0 +1,117 @@
+- name: Install docker
+  gather_facts: No
+  any_errors_fatal: true
+  hosts: _ansible_postgresql
+  become: true
+  vars_files:
+    - secret.yml
+  tasks:
+    - name: update packages
+      yum:
+        name: "*"
+        state: latest
+
+    - name: docker remove old version
+      yum:
+        name: "{{ item }}"
+        state: removed
+
+      loop:
+        - docker
+        - docker-client
+        - docker-client-latest
+        - docker-common
+        - docker-latest
+        - docker-latest-logrotate
+        - docker-logrotate
+        - docker-engine
+
+    - name: install yum-utils
+      yum:
+        name: yum-utils
+        state: latest
+    
+    - name: add docker repo
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docer-ce.repo
+
+    - name: install docker
+      package: 
+        name: docker-ce
+        state: latest
+
+    - name: intall pip
+      package:
+        name: python3-pip
+        state: latest
+
+    - name: intall docker sdk
+      pip:
+        name: docker
+      
+    - name: add group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: docker start enable 
+      systemd:
+          name: docker
+          state: started
+          enabled: yes
+
+    - name: cretae build directory
+      file: 
+        path: /home/ec2-user/postgresql
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+    
+    - name: Copy file
+      copy:
+        src: /home/ec2-user/ansible/ansible-Project/postgres/init.sql
+        dest: /home/ec2-user/postgresql
+
+    - name: Copy file
+      copy:
+        src: /home/ec2-user/ansible/ansible-Project/postgres/Dockerfile
+        dest: /home/ec2-user/postgresql
+
+    - name: remove serdar_postgre container and serdarcw/postgre if exists
+      shell: "docker ps -q --filter 'name=ozi_postgre' | grep -q . && docker stop ozi_postgre && docker rm -fv ozi_postgre && docker image rm -f ozidochub/postgre || echo 'Not Found'"
+
+    - name: docker build
+      docker_image:
+        name: ozidochub/postgre
+        build:
+          path: /home/ec2-user/postgresql
+        source: build
+        state: present
+
+    - name: Log into DockerHub
+      docker_login:
+        username: ozidochub
+        password: Ozi215224
+
+    - name: push image to dockerhub
+      shell: "docker push ozidochub/postgre:latest"
+
+    - name: Launch postgresql docker container
+      docker_container:
+        name: ozi_postgre
+        image: ozidochub/postgre
+        state: started
+        ports: 
+        - "5432:5432"
+        env:
+          POSTGRES_PASSWORD: "{{ password }}"
+        volumes:
+          - /db-data:/var/lib/postgresql/data
+      register: docker_info
+
+    - name: debug
+      debug:
+        var: docker_info
